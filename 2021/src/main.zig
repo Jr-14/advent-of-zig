@@ -8,9 +8,17 @@ pub fn main() !void {
     var file = try std.fs.cwd().openFile("./src/input/day-1-part-1.txt", .{});
     defer file.close();
 
-    const contents = try file.readToEndAlloc(allocator, 5000000);
-    defer allocator.free(contents);
+    var read_buf: [1028]u8 = undefined;
+    var file_reader: std.fs.File.Reader = file.reader(&read_buf);
 
-    std.debug.print("{s}", .{contents});
+    std.io.Reader
+
+    const reader = &file_reader.
+
+
+    // const contents = try file.readToEndAlloc(allocator, 5000000); // 5 MB
+    // defer allocator.free(contents);
+    //
+    // std.debug.print("{s}", .{contents});
 }
 
