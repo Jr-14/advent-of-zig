@@ -1,26 +1,27 @@
 const std = @import("std");
-const fs = std.fs;
 const print = std.debug.print;
 const expect = std.testing.expect;
 
-pub fn dayOnePartOne() !u32 {
-    const file_path = "./src/input/day-1-part-1.txt";
-    const file = try fs.cwd().openFile(file_path, .{});
-    defer file.close();
+const LineReader = @import("LineReader.zig").LineReader;
 
-    var file_buffer: [4096]u8 = undefined;
-    var reader = file.reader(&file_buffer);
+const file_path = "./src/input/day-1-part-1.txt";
+
+pub fn dayOnePartOne() !u32 {
+    var line_reader = try LineReader.init(file_path);
+    defer line_reader.deinit();
 
     var curr: u32 = undefined;
     var prev: u32 = undefined;
     var inc_count: u32 = 0;
-    if (try reader.interface.takeDelimiter('\n')) |line| {
+
+    if (try line_reader.nextLine()) |line| {
         curr = try std.fmt.parseInt(u32, line, 10);
     }
-    while (try reader.interface.takeDelimiter('\n')) |line| {
+
+    while (try line_reader.nextLine()) |line| {
         prev = curr;
         curr = try std.fmt.parseInt(u32, line, 10);
-        
+
         if (curr > prev) {
             inc_count += 1;
         }
@@ -57,13 +58,8 @@ const Window = struct {
 };
 
 pub fn dayOnePartTwo() !u32 {
-
-    const file_path = "./src/input/day-1-part-1.txt";
-    const file = try std.fs.cwd().openFile(file_path, .{});
-    defer file.close();
-
-    var file_buffer: [2048]u8 = undefined;
-    var reader = file.reader(&file_buffer);
+    var line_reader = try LineReader.init(file_path);
+    defer line_reader.deinit();
 
     var a: Window = Window.init(false);
     var b: Window = Window.init(false);
@@ -71,15 +67,15 @@ pub fn dayOnePartTwo() !u32 {
     var d: Window = Window.init(true);
     var inc_count: u32 = 0;
 
-    if (try reader.interface.takeDelimiter('\n')) |line| {
+    if (try line_reader.nextLine()) |line| {
         a.accumulate(try std.fmt.parseInt(u32, line, 10));
     }
-    if (try reader.interface.takeDelimiter('\n')) |line| {
+    if (try line_reader.nextLine()) |line| {
         const parsed = try std.fmt.parseInt(u32, line, 10);
         a.accumulate(parsed);
         b.accumulate(parsed);
     }
-    if (try reader.interface.takeDelimiter('\n')) |line| {
+    if (try line_reader.nextLine()) |line| {
         const parsed = try std.fmt.parseInt(u32, line, 10);
         a.accumulate(parsed);
         b.accumulate(parsed);
@@ -88,7 +84,7 @@ pub fn dayOnePartTwo() !u32 {
 
     var prev_inc: u32 = a.acc;
 
-    while (try reader.interface.takeDelimiter('\n')) |line| {
+    while (try line_reader.nextLine()) |line| {
         const parsed = try std.fmt.parseInt(u32, line, 10);
 
         if (a.count < 3) {
