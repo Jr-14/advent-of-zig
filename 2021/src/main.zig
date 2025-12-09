@@ -1,24 +1,16 @@
 const std = @import("std");
+const fs = std.fs;
+const print = std.debug.print;
+
+const file_path = "./src/input/day-1-part-1.txt";
 
 pub fn main() !void {
-    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
-    defer arena.deinit();
-    const allocator = arena.allocator();
-
-    var file = try std.fs.cwd().openFile("./src/input/day-1-part-1.txt", .{});
+    const file = try fs.cwd().openFile(file_path, .{});
     defer file.close();
 
-    var read_buf: [1028]u8 = undefined;
-    var file_reader: std.fs.File.Reader = file.reader(&read_buf);
-
-    std.io.Reader
-
-    const reader = &file_reader.
-
-
-    // const contents = try file.readToEndAlloc(allocator, 5000000); // 5 MB
-    // defer allocator.free(contents);
-    //
-    // std.debug.print("{s}", .{contents});
+    var file_buffer: [4096]u8 = undefined;
+    var reader = file.reader(&file_buffer);
+    while (try reader.interface.takeDelimiter('\n')) |line| {
+        print("{s}\n", .{ line });
+    }
 }
-
