@@ -30,11 +30,31 @@ const SomeBinaryData = struct {
         }
     }
 
+    pub fn emitMostFrequentWithFallBack(self: Self, fallback: u8) u8 {
+        if (self.zeros > self.ones) {
+            return 0;
+        } else if (self.zeros < self.ones) {
+            return 1;
+        } else {
+            return fallback;
+        }
+    }
+
     pub fn emitLeastFrequent(self: Self) u8 {
         if (self.zeros > self.ones) {
             return 1;
         } else {
             return 0;
+        }
+    }
+
+    pub fn emistLeastFrequentWithFallBack(self: Self, fallback: u8) u8 {
+        if (self.zeros > self.ones) {
+            return 1;
+        } else if (self.zeros < self.ones) {
+            return 0;
+        } else {
+            return fallback;
         }
     }
 };
@@ -51,7 +71,7 @@ fn arrayToInt(arr: *const [12]u8) u32 {
     return total;
 }
 
-pub fn  dayThreePartOne() !u32 {
+pub fn dayThreePartOne() !u32 {
     var line_reader = try LineReader.init(file_path);
     defer line_reader.deinit();
 
@@ -64,6 +84,8 @@ pub fn  dayThreePartOne() !u32 {
 
     const ARRAY_LENGTH: usize = 12;
 
+    // This array of binary data represents the counts of ones or zeros for each column
+    // We hardcode it for now since we know that we will always have 12
     var some_binary_array = [ARRAY_LENGTH]SomeBinaryData{
         SomeBinaryData{},
         SomeBinaryData{},
@@ -107,7 +129,67 @@ pub fn  dayThreePartOne() !u32 {
     return total_power;
 }
 
+pub fn dayThreePartTwo() !u32 {
+    var line_reader = try LineReader.init(file_path);
+    defer line_reader.deinit();
+
+    const ARRAY_LENGTH: usize = 12;
+
+    // This array of binary data represents the counts of ones or zeros for each column
+    // We hardcode it for now since we know that we will always have 12
+    var some_binary_array = [ARRAY_LENGTH]SomeBinaryData {
+        SomeBinaryData{},
+        SomeBinaryData{},
+        SomeBinaryData{},
+        SomeBinaryData{},
+        SomeBinaryData{},
+        SomeBinaryData{},
+        SomeBinaryData{},
+        SomeBinaryData{},
+        SomeBinaryData{},
+        SomeBinaryData{},
+        SomeBinaryData{},
+        SomeBinaryData{},
+    };
+
+    while (try line_reader.nextLine()) |line| {
+        for (line, 0..) |char, index| {
+            const b = char - '0';
+
+            some_binary_array[index].incrementCount(b);
+        }
+    }
+
+    const SCRUB_SIZE: usize = ARRAY_LENGTH - 1;
+    var oxygen_gen_rat: [SCRUB_SIZE]u8 = undefined;
+    var co2_scrubber_rat: [SCRUB_SIZE]u8 = undefined;
+    for (some_binary_array, 0..SCRUB_SIZE) |el, index| {
+        oxygen_gen_rat[index] = el.emitMostFrequentWithFallBack(1);
+        co2_scrubber_rat[index] = el.emistLeastFrequentWithFallBack(0);
+    }
+
+    std.debug.print("oxy: {any}\n", .{ oxygen_gen_rat });
+    std.debug.print("co2: {any}\n", .{ co2_scrubber_rat });
+
+    const oxygen_get_rat_num: u32 = arrayToInt(&oxygen_gen_rat);
+    const co2_scrubber_rat_num: u32 = arrayToInt(&co2_scrubber_rat);
+    const life_support_rating: u32 = oxygen_get_rat_num * co2_scrubber_rat_num;
+
+    std.debug.print("Oxygen generator rating: {any}\nCO2 Scrubber Rating: {any}\nLife Support Rating: {any}\n", .{
+        oxygen_get_rat_num,
+        co2_scrubber_rat_num,
+        life_support_rating,
+    });
+
+    return life_support_rating;
+}
+
 test "day three part one" {
     const value = try dayThreePartOne();
+    try expect(value == 749376);
+}
+
+test "day three part two" {
+    const value = try dayThreePartTwo();
     try expect(value == 749376);
 }
